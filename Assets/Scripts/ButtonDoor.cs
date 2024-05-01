@@ -45,7 +45,7 @@ public class ButtonDoor : MonoBehaviour, IInteractable
         }
         if (other.gameObject.tag == "Player 2")
         {
-            other.GetComponent<PlayerController1>().Touching(this);
+            other.GetComponent<PlayerController>().Touching(this);
             txtToDisplay.SetActive(true);
             PlayerInZone = true;
         }
@@ -60,7 +60,7 @@ public class ButtonDoor : MonoBehaviour, IInteractable
         }
         if (other.gameObject.tag == "Player 2")
         {
-            other.GetComponent<PlayerController1>().Touching(null);
+            other.GetComponent<PlayerController>().Touching(null);
             PlayerInZone = false;
             txtToDisplay.SetActive(false);
         }

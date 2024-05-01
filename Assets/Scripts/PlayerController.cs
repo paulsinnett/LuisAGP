@@ -1,7 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
+
 //using UnityEditor.Experimental.Rendering;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Users;
 using static UnityEngine.InputSystem.InputAction;
 
 public class PlayerController : MonoBehaviour
@@ -37,15 +41,61 @@ public class PlayerController : MonoBehaviour
     private Target target;
     private Transform pickUp;
 
+    public int playerNumber;
+    PlayerInput playerInput;
+    public MouseLook lookScript;
+
+    private Vector2 look;
+
+    public Vector3 Player;
+    public Vector3 objectToSwap;
+
+    /*[Header("Audio")]
+    public AudioSource src;
+    public AudioClip sfx;*/
+
+    [Header("PauseMenu")]
+    public bool pause = false;
+    public GameObject pauseMenuPannel;
+
+    [Header("CharacterAnim")]
+    public GameObject character2;
+
+    [Header("Crossheir")]
+    public Transform crosshair;
+    public LayerMask interactableLayer;
+    public Material selectedMaterial;
+    public Material noneSelectedMaterial;
+
+    [Header("Abilities")]
+    public Camera playerCamera;
+
     
+    private GameObject lastInteractedObject;
+
 
     private void Start()
     {
+
+        character2.GetComponent<Animator>();
         interactable = null;
         target = null;
 
         txtToDisplay.SetActive(false);
         Sphere.GetComponent<Rigidbody>().isKinematic = true;
+
+        playerInput = GetComponent<PlayerInput>();
+        playerInput.user.UnpairDevices();
+        List<InputDevice> bound = new List<InputDevice>();
+        InputUser user = InputUser.PerformPairingWithDevice(SettingsMenu.inputDevices[playerNumber], playerInput.user);
+        bound.Add(SettingsMenu.inputDevices[playerNumber]);
+        if (SettingsMenu.inputDevices[playerNumber] == Keyboard.current)
+        {
+            user = InputUser.PerformPairingWithDevice(Mouse.current, playerInput.user);
+            bound.Add(Mouse.current);
+        }
+        playerInput.SwitchCurrentControlScheme(bound.ToArray());
+        Debug.Log($"{user} = {playerInput.user} {user == playerInput.user}");
     }
 
 
@@ -57,11 +107,15 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        Player = transform.position;
         Grav();
         PlayerMovement();
-        Jump();
         Interactions();
         Pickup();
+        Look();
+        Pausing();
+        SwapPositionWithInteractable();
+        CheckInteractable();
     }
 
     public void Grav()
@@ -77,18 +131,49 @@ public class PlayerController : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
-    public void PlayerMovement()
+    public void OnMovement(InputValue value)
     {
-        move = controls.Player.Movement.ReadValue<Vector2>();
-
-        Vector3 movement = (move.y * transform.forward) + (move.x * transform.right);
-        controller.Move(movement * moveSpeed * Time.deltaTime);
+        move = value.Get<Vector2>();
+        if (controls.Player.Movement.triggered) 
+        {
+            //src.clip = sfx;
+            //src.Play();
+            //src.Stop();
+        }
+        //Debug.Log(src.time);
         
     }
 
-    public void Jump()
+    public void OnLook(InputValue value)
     {
-        if(controls.Player.Jump.triggered && isGrounded) 
+        //Debug.Log($"look = {value.Get<Vector2>()}");
+        look = value.Get<Vector2>();
+    }
+
+    public void Look()
+    {
+        lookScript.Look(look);
+    }
+
+    public void PlayerMovement()
+    {
+        Vector3 movement = (move.y * transform.forward) + (move.x * transform.right);
+        controller.Move(movement * moveSpeed * Time.deltaTime);
+        
+        if (controls.Player.Movement.triggered) 
+        {
+            character2.GetComponent<Animator>().SetBool("IsMoving", true);        
+        }
+        else 
+        {
+            character2.GetComponent<Animator>().SetBool("IsMoving", false);
+        }
+        
+    }
+
+    public void OnJump()
+    {
+        if(isGrounded) 
         { 
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
@@ -164,5 +249,69 @@ public class PlayerController : MonoBehaviour
         target.gameObject.transform.position = PlayerTransform.transform.position;
         target.gameObject.transform.rotation = PlayerTransform.transform.rotation;
         target.gameObject.transform.SetParent(PlayerTransform);
+    }
+
+    public void Pausing()
+    {
+        if (controls.Player.PauseMenu.triggered)
+        {
+            Time.timeScale = 0f;
+            pauseMenuPannel.SetActive(true);
+            pause = true;
+        }
+        
+    }
+
+    private void CheckInteractable()
+    {
+        Ray ray = playerCamera.ScreenPointToRay(crosshair.position);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, interactableLayer))
+        {
+            if (hit.collider.CompareTag("Interactable"))
+            {
+                if (lastInteractedObject != null && lastInteractedObject != hit.collider.gameObject)
+                {
+                    lastInteractedObject.GetComponent<Renderer>().material = noneSelectedMaterial;
+                }
+                lastInteractedObject = hit.collider.gameObject;
+                hit.collider.GetComponent<Renderer>().material = selectedMaterial;
+
+            }
+        }
+        else
+        {
+            if (lastInteractedObject != null)
+            {
+                lastInteractedObject.GetComponent<Renderer>().material = noneSelectedMaterial;
+                lastInteractedObject = null;
+            }
+        }
+    }
+
+    private void SwapPositionWithInteractable()
+    {
+        Ray ray = playerCamera.ScreenPointToRay(crosshair.position);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, interactableLayer))
+        {
+            
+            Debug.Log("Hit");
+            if (hit.collider.CompareTag("Interactable"))
+            {
+                Vector3 tempPosition = transform.position;
+                if (controls.Player.SwapPosition.triggered)
+                {
+                    
+                    transform.position = hit.collider.transform.position;
+                    hit.collider.transform.position = tempPosition;
+                }
+            }
+
+                
+        }
+        
     }
 }

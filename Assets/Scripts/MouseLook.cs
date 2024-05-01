@@ -6,29 +6,29 @@ using UnityEngine.InputSystem;
 public class MouseLook : MonoBehaviour
 {
     private InputMaster controls;
-    private float mouseSensitivity = 100f;
+    public float mouseSensitivity = 100f;
     private Vector2 mouseLook;
-    private float xRotation = 0f;
+    public float xRotation = 0f;
     private Transform playerBody;
 
     private void Awake()
     {
         playerBody = transform.parent;
-        controls = new InputMaster();
-        Cursor.lockState = CursorLockMode.Locked;
+    //    controls = new InputMaster();
+     Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private void Update()
-    {
-        Look();
-    }
+    //private void Update()
+    //{
+    //    //Look();
+    //}
 
-    private void Look()
+    public void Look(Vector2 look)
     {
-        mouseLook = controls.Player.Look.ReadValue<Vector2>();
+        //mouseLook = controls.Player.Look.ReadValue<Vector2>();
 
-        float mouseX = mouseLook.x * mouseSensitivity * Time.deltaTime;
-        float mouseY = mouseLook.y * mouseSensitivity * Time.deltaTime;
+        float mouseX = look.x * mouseSensitivity * Time.deltaTime;
+        float mouseY = look.y * mouseSensitivity * Time.deltaTime;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90);
@@ -38,13 +38,13 @@ public class MouseLook : MonoBehaviour
         playerBody.Rotate(Vector3.up * mouseX);
     }
 
-    private void OnEnable()
-    {
-        controls.Enable();
-    }
+    //private void OnEnable()
+    //{
+    //    controls.Enable();
+    //}
 
-    private void OnDisable()
-    {
-        controls.Disable();
-    }
+    //private void OnDisable()
+    //{
+    //    controls.Disable();
+    //}
 }

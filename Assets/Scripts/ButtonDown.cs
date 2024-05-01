@@ -27,7 +27,7 @@ public class ButtonDown : MonoBehaviour, IInteractable
     {
         if (other.gameObject.tag == "Player")
         {
-            other.GetComponent<PlayerController1>().Touching(this);
+            other.GetComponent<PlayerController>().Touching(this);
             PlayerInZone = true;
             txtToDisplay.SetActive(true);
         }
@@ -36,7 +36,7 @@ public class ButtonDown : MonoBehaviour, IInteractable
     {
         if (other.gameObject.tag == "Player")
         {
-            other.GetComponent<PlayerController1>().Touching(this);
+            other.GetComponent<PlayerController>().Touching(this);
             PlayerInZone = false;
             txtToDisplay.SetActive(false);
         }

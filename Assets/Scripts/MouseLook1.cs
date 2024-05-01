@@ -11,12 +11,12 @@ public class MouseLook1 : MonoBehaviour
     private float xRotation = 0f;
     private Transform playerBody;
 
-    private void Awake()
-    {
-        playerBody = transform.parent;
-        controls = new InputMaster2();
-        Cursor.lockState = CursorLockMode.Locked;
-    }
+    //private void Awake()
+    //{
+    //    playerBody = transform.parent;
+    //    controls = new InputMaster2();
+    //    Cursor.lockState = CursorLockMode.Locked;
+    //}
 
     private void Update()
     {

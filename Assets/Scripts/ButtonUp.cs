@@ -27,18 +27,18 @@ public class ButtonUp : MonoBehaviour, IInteractable
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Player 2")
+        if (other.gameObject.tag == "Player")
         {
-            other.GetComponent<PlayerController1>().Touching(this);
+            other.GetComponent<PlayerController>().Touching(this);
             PlayerInZone = true;
             txtToDisplay.SetActive(true);
         }
     }
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Player 2")
+        if (other.gameObject.tag == "Player")
         {
-            other.GetComponent<PlayerController1>().Touching(this);
+            other.GetComponent<PlayerController>().Touching(this);
             PlayerInZone = false;
             txtToDisplay.SetActive(false);
         }

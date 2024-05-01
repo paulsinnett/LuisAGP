@@ -161,8 +161,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions: []
   m_DstStateMachine: {fileID: 0}
-  m_DstState: {fileID: 469539257759898675, guid: 3d01240b16f99fc4e8d4644d5ea7627b,
-    type: 2}
+  m_DstState: {fileID: 469539257759898675, guid: 3d01240b16f99fc4e8d4644d5ea7627b, type: 2}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
